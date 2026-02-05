@@ -6,8 +6,9 @@ require("dotenv").config();
 const User = require("./models/User");
 
 const app = express();
+
 const bookingRoutes = require("./routes/bookingRoutes");
-app.use("/api/book", bookingRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 
 /* 🌍 CORS CONFIG (VERY IMPORTANT) */

@@ -2,30 +2,31 @@ const express = require("express");
 const router = express.Router();
 const Booking = require("../models/Booking");
 const Event = require("../models/Event");
-const authMiddleware = require("../middleware/authMiddleware");
+const { verifyToken } = require("./authRoutes"); // adjust path if different
 
-// CREATE BOOKING
-router.post("/book", authMiddleware, async (req, res) => {
+/* 🎟️ BOOK EVENT */
+router.post("/book", verifyToken, async (req, res) => {
   try {
     const { eventId, tickets } = req.body;
 
-    const event = await Event.findById(eventId);
-    if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!eventId || !tickets)
+      return res.status(400).json({ msg: "Missing booking details" });
 
-    const totalPrice = tickets * event.price;
+    const event = await Event.findById(eventId);
+    if (!event) return res.status(404).json({ msg: "Event not found" });
 
     const booking = new Booking({
       user: req.user.id,
       event: eventId,
-      tickets,
-      totalPrice
+      tickets
     });
 
     await booking.save();
 
-    res.status(201).json({ message: "Booking successful", booking });
+    res.status(201).json({ msg: "Booking successful" });
   } catch (err) {
-    res.status(500).json({ message: "Booking failed", error: err.message });
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
